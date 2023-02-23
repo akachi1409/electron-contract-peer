@@ -15,7 +15,8 @@ function ContactForm({
     contact,
     onCancelAdd,
     onCancelEdit,
-    closeModal
+    closeModal,
+    
   }) {
     const schema = yup.object({
       // firstName: yup.string().required('First name is required'),
@@ -69,10 +70,11 @@ function ContactForm({
       }
       if (!edit) {
         const data = JSON.stringify(evt);
-        console.log("evt",typeof data);
+        console.log("evt",typeof evt);
       //   await addContact(evt);
-    //   window.electronAPI.addContract( data);
-      closeModal();
+        window.contactapi.addContact( data);
+        setContacts((contacts) => [...contacts, evt]);
+        closeModal();
       }
     };
     console.log("---gg")

@@ -13,7 +13,6 @@ function Homepage() {
   const [selectedId, setSelectedId] = useState(0);
   const [selectedContact, setSelectedContact] = useState({});
   const [contacts, setContacts] = useState([]);
-  const [firstLoad, setFirstLoad] = useState(true);
 
   const openModal = () => {
     setOpenAddModal(true);
@@ -21,7 +20,6 @@ function Homepage() {
   const closeModal = () => {
     setOpenAddModal(false);
     setOpenEditModal(false);
-    // getData();
   };
 
   const cancelAddModal = () => {
@@ -35,12 +33,6 @@ function Homepage() {
     setOpenEditModal(false);
   };
 
-  useEffect(()=>{
-    if (firstLoad){
-    //   window.electronAPI.readContract();
-    }
-  },[firstLoad])
-
   useEffect(()=> {
     // window.electronAPI.listContract( (event, data) => {
     //   // console.log('ssl',data);
@@ -49,11 +41,14 @@ function Homepage() {
   }, [])
 
   useEffect(()=> {
-    // window.electronAPI.appendContract( (event, data) => {
-    //   console.log('ssl',data);
-    //   setContacts((contacts) => [...contacts, data]);
-    // });
+    window.contactapi.receiveContact( (event, data) => {
+      console.log('ssl',data);
+      setContacts((contacts) => [...contacts, data]);
+    });
+
+    window.contactapi.getOldContacts();
   },[])
+
   
   return (
     <div className="home-page" style={{ padding: '20px' }}>
@@ -68,6 +63,7 @@ function Homepage() {
             onSave={closeModal.bind(this)}
             onCancelAdd={cancelAddModal}
             closeModal={closeModal}
+            setContacts= {setContacts}
           />
         </Modal.Body>
       </Modal>
@@ -106,14 +102,14 @@ function Homepage() {
               <th>Phone</th>
               <th>Email</th>
               <th>Age</th>
-              <th>Edit</th>
-              <th>Delete</th>
+              {/* <th>Edit</th>
+              <th>Delete</th> */}
             </tr>
           </thead>
           <tbody>
-            {contacts.map((c) => {
+            {contacts.map((c, key) => {
               return(
-              <tr key={c.id}>
+              <tr key={key}>
                 <td>{c.firstName}</td>
                 <td>{c.lastName}</td>
                 <td>{c.address}</td>
