@@ -9,18 +9,19 @@ const b4a = require('b4a')
 const goodbye = require('graceful-goodbye')
 
 console.log("===== Electron app is starting =====")
-const swarm = new Hyperswarm()
-const store = new Corestore('storage')
-const core = store.get({ name: 'contact-core' })
-const bee = new Hyperbee(core, {
-    keyEncoding: 'utf-8',
-    valueEncoding: 'utf-8',
-});
 const conns = []
-let topic
-let discovery
 
-swarm.on('connection', async (conn) => {
+
+const initWindow = async ()=> {
+  const store = new Corestore('storage')
+
+  const swarm = new Hyperswarm()
+  goodbye(() => swarm.destroy())
+  
+  topic = process.env.TOPIC;
+  console.log("==== Topic ====", topic);
+  discovery = swarm.join(b4a.from(topic, 'hex'), { server: true, client: true })
+  swarm.on('connection', async (conn) => {
     const name = b4a.toString(conn.remotePublicKey, 'hex');
     console.log('*Got Connection:', name, '*');
     const data = []
@@ -50,42 +51,35 @@ swarm.on('connection', async (conn) => {
             return;
         }
     })
-})
-
-let mainWindow
-let window
-
-goodbye(() => swarm.destroy())
-
-core.ready().then(()=>{
-    console.log("===== Corestore is ready =====")
-    topic = process.env.TOPIC;
-    discovery = swarm.join(b4a.from(topic, 'hex'), { server: true, client: true })
-    discovery.flushed().then(() => {
-        console.log("===== Flused =====")
-        mainWindow = () => {
-          window = new BrowserWindow({
-            webPreferences: {
-              // eslint-disable-next-line no-undef
-              preload: path.join(__dirname) + '/middleware/preload.js',
-            },
-          })
-          ipcMain.on('send:contact', async( event, contactInstance)=>{
-            contactInstance = JSON.parse(contactInstance);
-            await bee.put(`ContacAt${contactInstance.timeStamp}`, JSON.stringify(contactInstance));
-            for (const conn of conns) {
-              conn.write(JSON.stringify(contactInstance))
-            }
-          })
-          ipcMain.on('get:oldcontacts', async()=>{
-            for await (const contact of bee.createReadStream()){
-              window.webContents.send('received:contact', JSON.parse(contact.value.toString()))
-            }
-          })
-          window.loadURL('http://localhost:3000')
-        }
-        app.whenReady().then(() => {
-            mainWindow()
-        })
-    })
+  })
+  const core = store.get({ name: 'contact-core' })
+  const bee = new Hyperbee(core, {
+      keyEncoding: 'utf-8',
+      valueEncoding: 'utf-8',
+  });
+  await core.ready();
+  console.log("===== Corestore is ready =====")
+  // discovery.flushed().then(() => {})
+  window = new BrowserWindow({
+    webPreferences: {
+      // eslint-disable-next-line no-undef
+      preload: path.join(__dirname) + '/middleware/preload.js',
+    },
+  })
+  ipcMain.on('send:contact', async( event, contactInstance)=>{
+    contactInstance = JSON.parse(contactInstance);
+    await bee.put(`ContacAt${contactInstance.timeStamp}`, JSON.stringify(contactInstance));
+    for (const conn of conns) {
+      conn.write(JSON.stringify(contactInstance))
+    }
+  })
+  ipcMain.on('get:oldcontacts', async()=>{
+    for await (const contact of bee.createReadStream()){
+      window.webContents.send('received:contact', JSON.parse(contact.value.toString()))
+    }
+  })
+  window.loadURL('http://localhost:3000')
+}
+app.whenReady().then(() => {
+  initWindow()
 })
