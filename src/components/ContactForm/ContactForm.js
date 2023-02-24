@@ -69,11 +69,10 @@ function ContactForm({
         return;
       }
       if (!edit) {
-        const data = JSON.stringify(evt);
         const timeStamp = Date.now()
         evt.timeStamp = timeStamp;
         console.log("evt",typeof evt);
-      //   await addContact(evt);
+        const data = JSON.stringify(evt);
         window.contactapi.addContact( data);
         setContacts((contacts) => [...contacts, evt]);
         closeModal();

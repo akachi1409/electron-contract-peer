@@ -18,7 +18,7 @@ const initWindow = async ()=> {
   const swarm = new Hyperswarm()
   goodbye(() => swarm.destroy())
 
-  swarm.on('connection', (conn) => {
+  swarm.on('connection',async (conn) => {
     const name = b4a.toString(conn.remotePublicKey, 'hex');
     console.log('*Got Connection:', name, '*');
     const data = []
@@ -73,6 +73,7 @@ const initWindow = async ()=> {
   })
   ipcMain.on('send:contact', async( event, contactInstance)=>{
     contactInstance = JSON.parse(contactInstance);
+    console.log("contactInstance", contactInstance);
     await bee.put(`ContacAt${contactInstance.timeStamp}`, JSON.stringify(contactInstance));
     for (const conn of conns) {
       conn.write(JSON.stringify(contactInstance))
@@ -80,6 +81,7 @@ const initWindow = async ()=> {
   })
   ipcMain.on('get:oldcontacts', async()=>{
     for await (const contact of bee.createReadStream()){
+      console.log("item:", contact);
       window.webContents.send('received:contact', JSON.parse(contact.value.toString()))
     }
   })
