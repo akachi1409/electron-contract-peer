@@ -35,10 +35,12 @@ const initWindow = async ()=> {
             data = JSON.parse(data)
             if (Array.isArray(data)) {
                 for (const contact of data) {
+                    console.log("getting array item:", contact);
                     await bee.put(`ContacAt${contact.timeStamp}`, JSON.stringify(contact))
                 }
             }
             else{
+              console.log("getting message", contact);
               window.wenContents.send("received:contact", data);
               await bee.put(`ContacAt${data.timeStamp}`, JSON.stringify(data))
             }
