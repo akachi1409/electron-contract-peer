@@ -26,6 +26,7 @@ const initWindow = async ()=> {
         // console.log(book);
         data.push(contact.value.toString());
     }
+    console.log("data to send:", data);
     conn.write(JSON.stringify(data))
     conns.push(conn)
     conn.once('close', () => conns.splice(conns.indexOf(conn), 1))
