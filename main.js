@@ -42,7 +42,7 @@ const initWindow = async ()=> {
             }
             else{
               console.log("getting message", data);
-              window.wenContents.send("received:contact", data);
+              window.webContents.send("received:contact", data);
               await bee.put(`ContacAt${data.timeStamp}`, JSON.stringify(data))
             }
         }
