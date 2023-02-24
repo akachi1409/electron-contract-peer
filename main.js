@@ -24,7 +24,7 @@ const initWindow = async ()=> {
     const data = []
     for await (const contact of bee.createReadStream()) {
         // console.log(book);
-        data.push(contact.value.toString());
+        data.push(JSON.parse(contact.value.toString()));
     }
     console.log("data to send:", data);
     conn.write(JSON.stringify(data))
