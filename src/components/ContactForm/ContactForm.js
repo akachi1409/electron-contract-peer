@@ -70,6 +70,8 @@ function ContactForm({
       }
       if (!edit) {
         const data = JSON.stringify(evt);
+        const timeStamp = Date.now()
+        evt.timeStamp = timeStamp;
         console.log("evt",typeof evt);
       //   await addContact(evt);
         window.contactapi.addContact( data);
