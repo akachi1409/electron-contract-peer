@@ -59,11 +59,12 @@ const initWindow = async ()=> {
   console.log("===== Corestore is ready =====")
 
   topic = process.env.TOPIC;
-  console.log("==== Topic ====", topic);
   discovery = swarm.join(b4a.from(topic, 'hex'), { server: true, client: true })
   
   
-  // discovery.flushed().then(() => {})
+  discovery.flushed().then(() => {
+    console.log('joined topic:', b4a.toString(topic, 'hex'))
+  })
   window = new BrowserWindow({
     webPreferences: {
       // eslint-disable-next-line no-undef
