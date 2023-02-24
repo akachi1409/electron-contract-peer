@@ -58,8 +58,8 @@ const initWindow = async ()=> {
   await core.ready();
   console.log("===== Corestore is ready =====")
 
-  topic = process.env.TOPIC;
-  discovery = swarm.join(b4a.from(topic, 'hex'), { server: true, client: true })
+  topic = b4a.from(process.env.TOPIC, 'hex');
+  discovery = swarm.join(topic, { server: true, client: true })
   
   
   discovery.flushed().then(() => {
